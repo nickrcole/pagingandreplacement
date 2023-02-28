@@ -1,0 +1,73 @@
+++++++++++++++++++++ Start Execution ++++++++++++++++++
+pu 0 1024
+pd 1 0x400200 0x0
+tu 0 0 1024
+pu 1 1028
+pd 1 0x404104 0x0
+tr 0 1028 1024
+pu 2 2056
+pd 1 0x808408 0x0
+tr 0 2056 1028
+pu 3 2060
+pd 1 0x80c10c 0x0
+tr 0 2060 2056
+pu 4 4096
+pd 1 0x1000800 0x0
+tr 0 4096 2060
+pu 5 4100
+pd 1 0x1004104 0x0
+tr 0 4100 4096
+pu 6 8200
+pd 1 0x2008008 0x0
+tr 0 8200 4100
+pu 7 12296
+pd 1 0x3008008 0x0
+tr 0 12296 8200
+pu 8 16392
+pd 1 0x4008008 0x0
+tr 0 16392 12296
+pu 9 20488
+pd 1 0x5008008 0x0
+tr 0 20488 16392
+pu 10 24584
+pd 1 0x6008008 0x0
+tr 0 24584 20488
+pu 11 28680
+pd 1 0x7008008 0x0
+tr 0 28680 24584
+pu 12 32776
+pd 1 0x8008008 0x0
+tr 0 32776 28680
+pu 13 36872
+pd 1 0x9008008 0x0
+tr 0 36872 32776
+pu 14 40968
+pd 1 0xa008008 0x0
+tr 0 40968 36872
+pu 15 45064
+pd 1 0xb008008 0x0
+tr 0 45064 40968
+pe 1 0 1024
+pu 0 49160
+pd 1 0xc008008 0x0
+tr 0 49160 45064
+pe 1 1 1028
+pu 1 53256
+pd 1 0xd00800a 0x0
+tr 0 53256 49160
+pe 1 2 2056
+pu 2 1048568
+pd 1 0xffff800a 0x0
+tr 0 1048568 53256
+++++++++++++++++++++ Effective Memory-Access Time ++++++++++++++++++
+Assuming:
+ 20ns TLB search time and 100ns memory access time
+memory accesses: 0; total memory accesses 0 (less page faults)
+TLB hit rate = 0.000000
+Effective memory-access time = 220.000000ns
+++++++++++++++++++++ Effective Access Time ++++++++++++++++++
+Assuming:
+ 14ms average page-fault service time (w/o swap out), a 12ms average swap out time, and 100ns memory access time
+swaps: 1; invalidates: 3; page faults: 19
+Page fault ratio = 1.000000
+Effective access time = 14.631578ms

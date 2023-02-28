@@ -1,0 +1,31 @@
+1 0x00400200 read  	//pdi,pti,po = 1,0,0x200	- pf 0
+1 0x00404104 write  	//pdi,pti,po = 1,4,0x104	- pf 1
+1 0x00808408 read	//pdi,pti,po = 2,8,0x408	- pf 2
+1 0x0080c10c write 	//pdi,pti,po = 2,12,0x10c 	- pf 3
+1 0x01000800 read	//pdi,pti,po = 4,0,0x800	- pf 4
+1 0x01004104 write	//pdi,pti,po = 4,4,0x104 	- pf 5
+1 0x02008008 write	//pdi,pti,po = 8,8,0x008	- pf 6
+
+1 0x00400200 read  	//pdi,pti,po = 1,0,0x200	- th
+1 0x0080c10c write 	//pdi,pti,po = 2,12,0x10c	- th
+1 0x01000800 read	//pdi,pti,po = 4,0,0x800	- th
+1 0x02008008 write	//pdi,pti,po = 8,8,0x008	- th
+
+1 0x0200c00c write	//pdi,pti,po = 8,12,0x00c	- pf 7	- tlb full
+
+1 0x0040100c write	//pdi,pti,po = 1,1,0x00c	- pf 8	- te 0
+1 0x0040200c write	//pdi,pti,po = 1,2,0x00c	- pf 9	- te 1
+1 0x0040300c write	//pdi,pti,po = 1,3,0x00c	- pf 10	- te 2
+1 0x0040540c read	//pdi,pti,po = 1,5,0x40c	- pf 11	- te 3
+1 0x0040600c write	//pdi,pti,po = 1,6,0x00c	- pf 12	- te 4
+1 0x0040700c write	//pdi,pti,po = 1,7,0x00c	- pf 13	- te 5
+1 0x0040980c read	//pdi,pti,po = 1,9,0x80c	- pf 14	- te 6
+1 0x0040a00f write	//pdi,pti,po = 1,10,0x00f	- pf 15	- te 7
+
+1 0x00400205 read  	//pdi,pti,po = 1,0,0x205	- ph
+1 0x0080c11c write 	//pdi,pti,po = 2,12,0x11c 	- ph
+1 0x01000809 read	//pdi,pti,po = 4,0,0x809	- ph
+1 0x00404a04 write  	//pdi,pti,po = 1,4,0xa04	- ph
+1 0x02008b08 write	//pdi,pti,po = 8,8,0xb08	- ph
+1 0x00808478 read	//pdi,pti,po = 2,8,0x478	- ph
+1 0x01004105 write	//pdi,pti,po = 4,4,0x105 	- ph

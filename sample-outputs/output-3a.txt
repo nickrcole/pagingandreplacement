@@ -1,0 +1,83 @@
+++++++++++++++++++++ Start Execution ++++++++++++++++++
+pu 0 1024
+pd 1 0x400100 0x100
+tu 0 0 1024
+pu 1 1025
+pd 1 0x40100c 0x100c
+tu 1 1 1025
+pu 2 1026
+pd 1 0x402100 0x2100
+tu 2 2 1026
+pu 3 1027
+pd 1 0x403f00 0x3f00
+tu 3 3 1027
+pu 4 1028
+pd 1 0x404100 0x4100
+tu 4 4 1028
+pu 5 1029
+pd 1 0x405100 0x5100
+tu 5 5 1029
+pu 6 1030
+pd 1 0x406f00 0x6f00
+tu 6 6 1030
+pu 7 1031
+pd 1 0x407100 0x7100
+tu 7 7 1031
+pu 8 1032
+pd 1 0x408100 0x8100
+te 8 1032 1024
+pu 9 1033
+pd 1 0x409f00 0x9f00
+te 9 1033 1025
+pu 10 1034
+pd 1 0x40a100 0xa100
+te 10 1034 1026
+pu 11 1035
+pd 1 0x40b100 0xb100
+te 11 1035 1027
+pu 12 1036
+pd 1 0x40c100 0xc100
+te 12 1036 1028
+pu 13 1037
+pd 1 0x40d100 0xd100
+te 13 1037 1029
+pu 14 1038
+pd 1 0x40e100 0xe100
+te 14 1038 1030
+pu 15 1039
+pd 1 0x40ff00 0xff00
+te 15 1039 1031
+pe 1 0 1024
+pu 0 2048
+pd 1 0x800100 0x100
+te 0 2048 1032
+ph 1 0x40100c 0x100c
+te 1 1025 1033
+ph 1 0x402100 0x2100
+te 2 1026 1034
+ph 1 0x404f00 0x4f00
+te 4 1028 1035
+pe 1 3 1027
+pu 3 2049
+pd 1 0x80100c 0x300c
+te 3 2049 1036
+pe 1 5 1029
+pu 5 2050
+pd 1 0x80200c 0x500c
+te 5 2050 1037
+pe 1 6 1030
+pu 6 2051
+pd 1 0x80300c 0x600c
+te 6 2051 1038
+++++++++++++++++++++ Effective Memory-Access Time ++++++++++++++++++
+Assuming:
+ 20ns TLB search time and 100ns memory access time
+memory accesses: 3; total memory accesses 3 (less page faults)
+TLB hit rate = 0.000000
+Effective memory-access time = 220.000000ns
+++++++++++++++++++++ Effective Access Time ++++++++++++++++++
+Assuming:
+ 14ms average page-fault service time (w/o swap out), a 12ms average swap out time, and 100ns memory access time
+swaps: 2; invalidates: 4; page faults: 20
+Page fault ratio = 0.869565
+Effective access time = 13.217404ms

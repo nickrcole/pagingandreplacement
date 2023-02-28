@@ -1,0 +1,7 @@
+1 0x00400200 read  	//pdi,pti,po = 1,0,0x200	- pf 0
+1 0x00404104 write  	//pdi,pti,po = 1,4,0x104	- pf 1
+1 0x00808408 read	//pdi,pti,po = 2,8,0x408	- pf 2
+1 0x0080c10c write 	//pdi,pti,po = 2,12,0x10c 	- pf 3
+1 0x01000800 read	//pdi,pti,po = 4,0,0x800	- pf 4
+1 0x01004104 write	//pdi,pti,po = 4,4,0x104 	- pf 5
+1 0x02008008 write	//pdi,pti,po = 8,8,0x008	- pf 6

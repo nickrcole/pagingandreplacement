@@ -1,0 +1,510 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>CMPSC 473 - Project #1 - Paging and Replacement</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="keywords" content="CMPSC 473">
+  <meta name="keywords" content="Operating Systems">
+  <meta name="description" content="CMPSC 473 Home Page">
+  <link href="style.css" rel="stylesheet" type="text/css">
+  <link rel="SHORTCUT ICON" href="psuicon.png">
+
+
+<STYLE TYPE="text/css">
+<!--
+.indented
+   {
+   padding-left: 50pt;
+   padding-right: 50pt;
+   }
+-->
+</STYLE>
+  </head>
+
+
+  <body>
+    <h1>CMPSC 473 - Project #1 - Paging and Replacement</h1>
+
+
+<P><b>Due Date</b>: 2/21/2023.  9 points</p>
+
+<p>Single person project. <b>Do your own work!</b></p>
+
+<p>In this project, you will extend a program that emulates the
+processing of a series of memory access requests to implement key
+tasks in processing memory requests, including page replacement.  This
+program takes a sequence of memory access requests as inputs and
+emulates TLB, page table, and page fault handling to process those
+requests.  You will extend this program in four ways: (1) you will add
+a mechanism to add and resolve page mappings (i.e., map a page number
+- for the memory access request - to a physical frame number) for a
+two-level page table; (2) you will add a mechanism to search the TLB
+to determine the physical address of a memory request on a TLB hit;
+(3) you will implement two page replacement schemes (second
+chance/clock and a 3-bit approximation of "least recently used"); and
+(4) you will implement a mechanism to deallocate page table memory
+when a process is terminated.</p>
+
+
+<h3>Get the Project Code</h3>
+
+<p>For Project P1, please use the Invitation Link:</p>
+
+<a href="https://classroom.github.com/a/pBW6z8-M">https://classroom.github.com/a/pBW6z8-M</a>
+
+<p>Click on the invitation link above and then accept the project. By
+accepting the invitation, you will have access to your private
+repository containing the starter files provided as a part of the
+project (it has the source code, test cases, and outputs for the
+project).</p>
+
+<p>The link for your repository is:
+"https://github.com/CMPSC-473-Spring-2023/p1-SP2023-&lt;your-github-username&gt;".</p>
+
+  <!---
+Note: This private repository is a copy of a public starter repository
+at https://github.com/p1-SP2023/p1. Please stay
+tuned constantly to the canvas page for the exact and latest interface
+functions you need to implement, their arguments, test programs,
+examples, documentation/manuals and announcements.
+--->
+
+ <h3>Using the Program</h3>
+
+    <p>The program works as follows: type
+<b><i>cmpsc473-p1 input-file output-file mechanism-number</i></b> at the
+prompt.  The input files will be provided.  The output file will
+contain the results of the processing.  The <i>mechanism-number</i>
+indicates which page replacement algorithm will be applied, where: (0)
+is for FIFO replacement (code provided); (1) is for the clock (second chance)
+algorithm; and (2) is for a 3-bit LRU algorithm.  We will provide
+example input files and their expected outputs for each program
+extension.</p>
+
+<p><b>NOTE</b>: The paging mechanism that you implement in this
+    project - especially for Tasks 1 and 2 below - is the traditional
+    paging mechanism described in Chapters 18, 19, and 20 of
+    the <a href="https://pages.cs.wisc.edu/~remzi/OSTEP/">course
+    textbook</a>.  Until you understand those steps, the detailed
+    description for Tasks 1 and 2 below may be hard to follow.
+    Similarly, the page replacement algorithms required for Task 3 are
+  discussed in the book in Chapter 22.</p>
+
+   <p>I highly recommend mapping the concept approaches described in
+    the book to the function-level requirements for the programming
+    assignment.  If there is a coding task that you cannot map to any
+    conceptual approach, I recommend seeking some help.</p>
+
+
+<h3>Project Tasks</h3>
+
+<p>The project will consist of the following tasks:</p>
+
+<p><b>NOTE: </b>For the first two tasks, use the FIFO replacement
+algorithm (provided) by specifying the <i>mechanism-number</i> of 0.
+In Task 3, you will add the two other replacement algorithms.  For all
+tasks, each memory request may be made by a different process.  Every
+page table operation runs in the context of the specific process making
+the memory request.  </p>
+
+<ol>
+
+<!-- TJ - download from repo
+  
+  <li><p>Download the following tarball <a href="p1.tgz">Project 1
+  Code</a> to your CSE account file space.  You should have one file
+      <b>p1.tgz</b>. </p>
+-->
+
+  <li><p><b>Task 1: </b>The first task in virtual memory management is to allocate
+  physical frames for virtual memory accesses.  The basic process of
+  memory management is implemented by the <b>command_loop</b>
+  function.  When a program starts, it has no access to physical
+  memory, so the TLB (<b>tlb_resolve_addr</b>) and the page table
+  (<b>pt_resolve_addr</b>) will fail to resolve the virtual address
+  (vaddr) of the memory request.  Thus, your first task is to complete
+  an implementation of <b>pt_demand_page</b> to store the physical
+  frame for a virtual page in a two-level page table.</p>
+
+  <p><b>Task Guidance:</b> The first step in
+  allocating a physical frame for a page is to identify the <b>page
+  table entry</b> to start that page-to-frame mapping.  The
+  function <b>PAGE_TO_PTENTRY</b> must be completed to translate
+  a <b>page number</b> (from the virtual address of the access, vaddr)
+  to a <b>page table entry</b>.  When a process performs an
+  instruction that references a virtual memory address, we need a
+  physical frame to "back" that virtual page being accessed.  Thus,
+  the first step is to store a new mapping between the page and the
+  frame in the page table entry.  See the definition of
+  the <b>ptentry_t</b> structure in <i>cmpsc473-p1.h</i>.  </p>
+
+    <p>In this project, we will use a two-level page table, as
+    described in Section 20.3 of the course textbook.  See Figure 20.3
+    (multi-level version) for the format of the page table in
+    memory. We assume our system uses 32-bit virtual addresses and
+    4K pages, meaning that: (1) the first (lowest) 12 bits of an
+    address reference the offset within a page and (2) the remaining
+    (highest) 20 bits are the page number.  The two-level page table
+    indexes pages using 10 (higher) bits to index the page directory
+    for the page and 10 (lower) bits of the page number to index the
+    page table to find the specific entry with the page-to-frame
+    mapping.  The physical address is then computed as shown.</p>
+
+    <img src="img/address-layout.PNG" width="100%" height="auto">
+
+    <p>The first-level is called the <b>page directory</b> and
+    consists of an array of 1024 entries - for 2^10 possible page
+    directory indices.  These <b>page directory entries</b> consist of
+    only one field, an 8-byte address to the second-level page table
+    entries for a particular page directory entry.  If a page
+    directory entry has a non-null page table page (pte_page) field
+    value, the page table is valid.  You need to allocate the memory
+    for each page table page dynamically.  It will make your life a
+    lot easier if you page-align each page table
+    using <b>posix_memalign</b>.  I use this to align the page
+    directory itself, so there is already an example in the code.</p>
+
+    <p>Each page table page consists of 1024 entries that are 4 bytes
+    in size.  The entries use bit fields to store small values - from
+    1 bit for "valid" to 20 bits for the "page number."  The data
+    structure definitions for page directory entries (pdentry_t), page
+    table entries (ptentry_t), and physical frames (frame_t), among others, are
+    included in <i>cmpsc473-p1.h</i>.  <b>Do not modify the
+    cmpsc473-p1.h file!</b>
+
+    <img src="img/figure-20.3.PNG">
+
+    <p><b>Task Details:</b> I provide you with the code to identify a
+    free physical frame in the function <b>pt_demand_page</b> (so your
+    program runs predictably), so your task is to write the code to
+    setup the page table entry for a new page-to-frame (page table)
+    mapping and compute the resultant physical address for virtual
+    address.  This task has three modest steps.  If you find you
+    cannot perform any of the steps please obtain guidance as the
+    subsequent tasks depend on completing this one.</p>
+      
+    <p><b>Your task 1(a):</b> The first step is to write the
+    function <b>PAGE_TO_PTENTRY</b>, which maps a virtual page number
+    to its corresponding page table entry for that page and returns
+    the address of the page table entry, allocating page table memory
+    when required.  Please use the guidance above to implement this
+    computation.</p>
+
+    <p><b>Your task 1(b):</b> The second step is to initialize the new
+    page-to-frame mapping by updating the page table entry and frame
+    fields in the function <b>pt_alloc_frame</b> with the expected
+    values.  You can set the reference ("ref") and dirty ("dirty")
+    fields of the page table to FALSE initially, as they will be set
+    later by <b>hw_update_pageref</b>, which emulates how the hardware
+    updates these bits.  Also, please set the "op" field of the page
+    table to OP_READ or OP_WRITE (should be the values passed into
+    that function).  Please figure out the semantics of the other page
+    table and frame fields to assign their initial values.</p>
+
+    <p><b>Your task 1(c):</b> The last step is to compute the physical
+    address for a memory address from the virtual address and frame at
+    the line shown in <b>pt_demand_page</b>.  The mechanism to do this
+    is described in Chapter 18.</p>
+
+  <li><p><b>Task 2: </b>In addition to virtual address translation
+  using page tables, you will also implement virtual-to-physical
+  address resolution for the emulated TLB (<b>tlb_resolve_addr</b>)
+      and for page table hits (<b>pt_resolve_addr</b>).</p>
+
+<p><b>Your Task 2(a):</b> The TLB is a simple cache (array) of recently
+  used address translations.  If a TLB hit is found for a valid entry,
+  the program function
+  <b>tlb_resolve_addr</b> must convert the virtual address (vaddr) to
+  a corresponding physical address (paddr) based on the frame mapped
+  to the page in the TLB.  NOTE: That you need to check for a
+  <b>protection fault</b> for the TLB hit entry
+  in <b>tlb_resolve_addr</b>.  In general, the "op" of a page-to-frame
+  mapping must be "write" (=1) for a write operation to be
+  allowed.  See the check in <b>pt_demand_page</b> for an example. </p>
+
+  <p><b>Your Task 2(b):</b> The function <b>pt_resolve_addr</b> must
+    determine whether there is a valid page table entry for the page,
+    and if so, compute the physical address for the frame mapped for
+    the page by the page table.  Use the <b>PAGE_TO_PTENTRY</b>
+    function you already wrote in Task 1(a) to simplify this task.
+    NOTE: That you need to check for a <b>protection fault</b> for
+    the page table lookup as well.  See Task 2(a) above.</p>
+  
+  <li><p><b>Task 3:</b> You will need to implement <i>page
+  replacement</i> when the page table/TLB do not contain a reference
+  to that virtual address and all the frames are in use.  We will
+  implement two page replacement mechanisms, both of which approximate
+  LRU (Section 22.8): (1) clock algorithm (a.k.a., second-chance) 
+  and (2) 3-bit LRU (simply referred to as 'lru' in the codebase).
+  Use these numbers (1 for clock and 2 for 3-bit LRU) as
+  the <i>mechanism-number</i> argument to the <i>cmpsc473-p1</i>
+  process.</p>
+
+      <p>There are two functions that must be
+  implemented for each page replacement mechanism: (1)
+  <b>update</b>, which updates the page replacement data structures
+  when a new page table entry is made valid (allocated) after a page
+  fault (called in the <b>command_loop</b>; and (2)
+  <b>replace</b>, which performs the page replacement mechanism
+  (called in <b>pt_demand_page</b>).  The replacement functions must
+  make the same decisions as dictated by the page replacement
+  algorithms.</p>
+
+    <p>See an <a href="cse473-p1-fifo.c">example implementation of FIFO
+  replacement</a> to give you an idea of how to implement replacement
+      mechanisms. The <i>mechanism-number</i> for FIFO replacement is '0'.  </p>
+  
+    <p><b>Your Task 3(a): </b>First, implement the clock algorithm for
+    page replacement.  As each page is mapped to a frame, add the
+    resulting page table entry to a circular list at the end
+    (<b>update</b>).  When a page is to be evicted (<b>replace</b>),
+    run the clock algorithm as described in Section 22.8 to choose the
+    page to evict. The associated functions are located in
+    <i>cmpsc473-p1-second.c</i>.  </p> 
+
+    <p><b>Your Task 3(b): </b>3-bit LRU is similar to the clock
+    algorithm except that we use 3-bit reference value stored in the
+    frame. As each page is mapped to a frame, add the resulting frame
+    to a circular list at the end (<b>update</b>), as above.  In
+    addition, set the most significant bit in the frame's "lru" field
+    (<b>frame_t</b>).  That is, initially, the "lru" field value will
+      be 4 or 100 in binary.</p>
+
+    <p>When a page is to be evicted
+    (<b>replace</b>), cycle through the entries until you reach an
+    entry with the "lru" value of 0 or 000.  As each entry is examined
+    "age" the value in the "lru" by shifting the value one bit to the
+    right (i.e., 100 becomes 010).  Should no entry have the value 0,
+    then choose the first entry with the lowest value seen to be
+    evicted.  For example, if the lowest "lru" value is 1 or 001 and
+    10 frames have this "lru" value, evict the first frame visited
+    with that "lru" value.  Like the second chance algorithm, set the
+    head of the circular list to be the entry after the evicted entry.
+    Remove the evicted entry from the list.</p>
+
+    <p>The associated functions, <b>update</b> and <b>replace</b>
+    are located in<i>cmpsc473-p1-lru.c</i>.  </p>
+
+
+<!--
+      The function
+  <b>pt_demand_page</b> defines the demand paging mechanism (provided), but you
+  will define the supporting page replacements and update the page tables (the
+  TLB updating is provided).  
+
+  <p>Page table updates consist of allocating a page table entry the
+  associates a page with a frame (<b>pt_alloc_frame</b>).  In this
+  function, a page table entry (ptentry) is associated with a frame and
+  operation (read-only or read-write).  The page table bits for the
+  page (valid, and reference) must be updated also (call <b>hw_update_pageref</b>).  The
+  .h file defines these bits. If a
+  page is being replaced, we need to invalidate that entry.  You will
+  also implement the function (<b>pt_invalidate_mapping</b>) to remove
+  (invalidate) the mapping between a virtual page and a physical
+  frame.</p>
+
+  <p>We will implement two page replacement mechanisms: (1) least
+  frequently used and (2) second-chance - use these numbers as
+    the <i>mechanism-number</i> argument to the process.
+ --->
+<!-- TJ - These are defined in Section 9.4 of
+  the <font color="red">book <i>Operating System Concepts (9th
+  edition)</i></font>.
+-->
+<!-- <b>NOTE: each implementation scans
+  a list of pages.  For enhanced second chance, your implementation
+  should only scan the page list one time (at most).  This algorithm
+  should find the first entry in the lowest class available (stopping
+  if it finds an entry of the lowest class), and it should clear the
+  reference bit on the entries it checks. </b>
+-->
+
+
+  <!--- TJ: kill process -->
+
+  <li><p><b>Task 4: </b>The fourth task is to properly deallocate the
+  page table memory used by a process when it is terminated through a
+  call to the function <b>kill_process</b>.  This function is invoked
+  when the process terminates due to a segmentation fault (e.g.,
+  accesses memory address 0) or a protection fault (i.e., accesses a
+  page with more permissions than allocated for that page).  The
+  requirement here is to traverse the page directory to find any pages
+  allocated for page table entries (i.e., that your program allocated
+  and stored in the <b>pte_page</b> field of a pdentry_t structure)
+  and <b>free</b> that memory (which also happen to be one page in
+  size).  Note that you <b>do not</b> need to traverse page table to
+  invalidate these pages.  They will be reclaimed in page replacement eventually (lazily).</p>
+
+<!--   <li><p>Finally, when all the memory access requests have been
+  processed, we need to compute some summary information.  The two
+  computations that you will need to add to <b>write_results</b> are:
+  (1) effective memory-access time 
+ and
+  (2) effective access time relative to page faults.
+Use
+  the information for <i>tlb_hit_ratio</i> and <i>pf_ratio</i> (page
+  fault) to compute these values.  Use 20 nanoseconds for TLB lookup
+  time, 100 nanoseconds for memory access time, and other #defines for
+  overheads in cse473-p1.h.
+--->
+
+<!---
+  <li><p>Please be prepared to answer the following questions regarding the project (e.g., on a future quiz/exam):
+
+  <ol>
+  <li><p>When a memory access corresponds to an invalid entry in the
+  page table, it may or may not refer to a legal virtual address in
+  the process's address space.  How does the operating system
+  determine this?</p>
+
+  <li><p>What is the page-fault frequency approach?
+  What problem does it address?</p>
+
+  <li><p>What is an example of a workload (sequence of memory
+  accesses) in which most frequently used page replacement would lead
+  to fewer page faults than other page replacement algorithms?</p>
+--->
+
+
+    <h3>Project Testing</h3>
+
+    <p>The project repository includes basic test cases for each
+    project task (and in some cases, subtasks).  Your project code
+    will need to successfully complete these test cases for any credit
+    (at least 50% of task credit).  We will run other test cases as
+      well for some tasks.</p>
+
+    <p>The test cases produce (cryptic looking) output to the
+    specified output file to record the critical events in memory
+      processing.  We describe the event types and meanings below.</p>
+
+    
+    <ol>
+      <li><b>Address resolution</b>:
+	<ul>
+	  <li><b>Demand paging (new PT mapping): </b>pd pid virtual-addr physical-addr
+	  <li><b>TLB hit: </b>th pid virtual-addr physical-addr
+	  <li><b>Page table hit: </b>ph pid virtual-addr physical-addr
+	</ul>
+
+      <li><b>TLB operations</b>:
+	<ul>
+	  <li><b>TLB evict (replace mapping in TLB): </b>te tlb-no new-frame-no new-page-no old-frame-no old-page-no
+	  <li><b>TLB replace (new page for frame in TLB): </b>tr tlb-no frame-no new-page-no old-page-no
+	  <li><b>TLB update (new TLB mapping): </b>tu tlb-no frame-no page-no
+	</ul>
+
+      <li><b>Page Table operations</b>:
+	<ul>
+	  <li><b>Page eviction (evict page): </b>pe pid page-no frame-no
+	  <li><b>Page mapping update (for new PT mapping): </b>pu frame-no page-no
+	</ul>
+
+      <li><b>Process operations</b>:
+	<ul>
+	  <li><b>Segmentation Fault: </b>sf pid virtual-addr
+	  <li><b>Protection Fault: </b>pf pid virtual-addr
+	  <li><b>Kill Process: </b>kp pid pt-pages-freed
+	</ul>
+    </ol>
+
+    <h3>Test Cases</h3>
+
+    <p>The project supplies the following test cases, as the file <b>input-&lt;test-case-id&gt;.txt</b> and the corresponding expected output <b>output-&lt;test-case-id&gt;.txt</b> (under the "sample-outputs" subdirectory.</p>
+
+    <ol>
+      <li><p><b>Task 1</b>: Test cases 1a (page fault handling) and 1b
+	  (page fault with FIFO replacement.</p>
+
+      <li><p><b>Task 2</b>: Test cases 2a (TLB address resolution) and
+	  2b (Page Table address resolution).</p>
+
+      <li><p><b>Task 3</b>: Test cases 3a (second chance) and 3b
+	  (3-bit LRU).</p>
+
+      <li><p><b>Task 4</b>: Test case 4 (segmentation and page faults).</p>
+
+    </ol>
+
+    <p>We will also apply at least one stress test case that
+    includes aspects of Tasks 1, 2, and 4 for one replacement algorithm
+    at a time.</p>
+    
+
+   
+  <h3>Project Submission</h3>
+
+    <p>You need to commit four files for this project:</p>
+
+    <ol>
+
+      <li><p>The file <b>commit.txt</b> in which you will store the commit
+	  ID for the repository you want us to grade.</p>
+
+	<li><p>The modified file <b>cmpsc473-p1.c</b>, which includes
+	    the code for Tasks 1, 2, and 4.</p>
+
+	<li>The modified file <b>cmpsc473-p1-second.c</b>, which includes
+	    the code for Task 3(a).</p>
+
+    	<li>The modified file <b>cmpsc473-p1-lru.c</b>, which includes
+	  the code for Task 3(b).</p>
+    </ol>
+
+  <h3>Project Grading</h3>
+  
+      <ol>
+
+	<!--- others - compile -->
+	<!-- PAGE_TO_PTENTRY -->
+	<!-- pt_alloc_frame -->
+	<!-- pt_resolve_addr --> 
+	<!-- tlb_resolve_addr 5/9 -->
+	<!-- second - 2 functions -->
+	<!-- lru - 2 functions -->
+	<!-- kill process -->
+	
+  <li><p>Task 1 (a, b, c)<b>: 2 points</b></p>
+
+  <li><p>Task 2 (a, b)<b>: 2 points</b></p>
+
+  <li><p>Task 3 (a, b)<b>: 2 points</b></p>
+
+  <li><p>Task 4<b>: 1 point</b>
+
+      <li><p>Stress Testing<b>: 1 point</b>
+
+  <li><p>Correct submission<b>: 1 point</b></p>
+
+  </ol>
+
+
+
+<b>Extra notes/explanations/reminders:</b>
+
+    <p>To be added as needed with more project info.</p>
+
+<!---
+<ol>
+<li> <p>To help you better understand what you are supposed to do, we provide a demo executable file <b>project1-demo</b> which implements FIFO algorithm. To run it, first write your own input file in the same directory, then type the command <b><i>project1-demo input-file output-file</i></b> in the terminal. We also provide the code to implement FIFO algorithm <b>cse473-p1-fifo.c</b>, note that this code works as a reference, it cannot be compiled alone. 
+
+  <li> <p>When creating your own input file, please be careful about the virtual address format. The page size is 0x1000 (PAGE_SIZE = 0x1000) and there are at most 64 virtual pages per process (VIRTUAL_PAGES = 64). That is to say, the maximum allowed virtual address is 64 * 0x1000 = 0x40000. Otherwise, a segmentation fault will occur.
+
+  <li> <p>In this project, if the accessed page offset is smaller than 0x200, it is write operation, otherwise, it is read operation.
+
+  <li> <p>When implementing most frequently used algorithm, you can use the field <b>ct</b> in <b>ptentry</b> to record how many times this page has been referred.
+
+  <li> <p>The time metrics such as TLB searching time, page table searching time, page fault overhead, etc, are constants defined in .h file. So you do <b>not</b> need to measure those in your project (since this is only a simulation project, it is meaningless to measure those time metrics). However, you do need to use your recorded <b>tlb_hit_ratio</b> and <b>pf_ratio</b> to calculate effective memory-access time and effective access time in your program. 
+  
+  <li> <p>In functions <b>tlb_resolve_addr</b> and <b>pt_resolve_addr</b>, if there is a hit, do not forget to call <b>hw_update_pageref</b> to update reference bit and (perhaps) dirty bit.
+
+  <li> <p> When invalidate a mapping, do not forget to check the dirty bit to determine whether it is necessary to overwrite the disk data (call <b>pt_write_frame</b>), please take section 9.4.1 of Operating System Concepts as a reference. 
+
+  <li> <p> Although it is not a very difficult project, there are hundreds lines of codes you need to go through. So you may want to start early and ask TAs or instructor for help when you get stuck.
+</ol>
+--->
+
+<hr>
+    <address><a href="mailto:tjaeger@cse.psu.edu">Trent Jaeger</a></address>
+  </body>
+</html>
